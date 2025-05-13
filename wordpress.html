@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Malgun Gothic', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        textarea {
+            width: calc(100% - 16px);
+            min-height: 150px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            resize: vertical;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .context-edit {
+            width: 100%;
+            min-height: 80px;
+            padding: 8px;
+            border: 1px solid #2196F3;
+            border-radius: 4px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box;
+            background-color: #f0f8ff;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 15px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button.clear-button {
+            background-color: #f44336;
+        }
+        button.clear-button:hover {
+            background-color: #d32f2f;
+        }
+        button.change-button {
+            background-color: #2196F3;
+        }
+        button.change-button:hover {
+            background-color: #0b7dda;
+        }
+        button.context-apply {
+            background-color: #ff9800;
+            padding: 6px 12px;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        button.context-apply:hover {
+            background-color: #e68a00;
+        }
+        button.apply-button {
+            background-color: #ff9800;
+        }
+        button.apply-button:hover {
+            background-color: #e68a00;
+        }
+        button.disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        button.cancel-button {
+            background-color: #777;
+        }
+        button.cancel-button:hover {
+            background-color: #555;
+        }
+        .button-group {
+            display: flex;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            display: none;
+        }
+        .safe {
+            background-color: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            color: #2e7d32;
+        }
+        .warning {
+            background-color: #fff3e0;
+            border: 1px solid #ffcc80;
+            color: #ef6c00;
+        }
+        .danger {
+            background-color: #ffebee;
+            border: 1px solid #ef9a9a;
+            color: #c62828;
+        }
+        .highlight {
+            background-color: #ffff00;
+            color: #ff0000;
+            font-weight: bold;
+            padding: 2px;
+            border-radius: 3px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .tab {
+            padding: 10px 15px;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: white;
+            border-bottom: 1px solid white;
+        }
+        .tab-content {
+            display: none;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 0 0 4px 4px;
+            margin-top: -1px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .found-items {
+            margin-top: 10px;
+        }
+        .found-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+        .found-item.pending-change {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+        }
+        .found-item.changed {
+            background-color: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            opacity: 0.8;
+        }
+.found-highlight {
+            color: #ff0000;
+            font-weight: bold;
+            background-color: #ffff00;
+        }
+        .banned-word {
+            display: inline-block;
+            background-color: #ffcdd2;
+            padding: 2px 5px;
+            margin: 3px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .context-preview {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 5px;
+            margin-top: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .advanced-options {
+            margin-top: 10px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .option-group {
+            margin-bottom: 10px;
+        }
+        .visual-preview {
+            margin-top: 10px;
+            padding: 5px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .tags-input-container {
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 4px;
+            display: flex;
+            flex-wrap: wrap;
+            min-height: 40px;
+            margin-bottom: 15px;
+            align-items: center;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .tag-item {
+            background-color: #f1f1f1;
+            display: inline-block;
+            padding: 5px 8px;
+            border-radius: 15px;
+            margin: 2px 5px 2px 0;
+            font-size: 14px;
+        }
+        .tag-close {
+            margin-left: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+        }
+        .tags-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 5px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+        .banned-highlight {
+            background-color: #ffff00;
+            color: #ff0000;
+            font-weight: bold;
+        }
+        .change-panel {
+            background-color: #f0f8ff;
+            border: 1px solid #b8daff;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            display: none;
+        }
+        .warning-icon {
+            color: #fa8c16;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .pending-badge {
+            background-color: #ffc107;
+            color: #333;
+            font-size: 12px;
+            padding: 2px 5px;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+        .changed-badge {
+            background-color: #28a745;
+            color: white;
+            font-size: 12px;
+            padding: 2px 5px;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+        .modified-text-container {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .modified-text-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .change-preview {
+            margin-top: 10px;
+            padding: 5px;
+            background-color: #f0f8ff;
+            border: 1px solid #b8daff;
+            border-radius: 4px;
+        }
+        .collapsible {
+            background-color: #f1f1f1;
+            color: #444;
+            cursor: pointer;
+            padding: 12px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .collapsible:hover {
+            background-color: #ddd;
+        }
+        .collapsible:after {
+            content: '\002B'; /* + 기호 */
+            color: #777;
+            font-weight: bold;
+            float: right;
+            margin-left: 5px;
+        }
+        .collapsible.active:after {
+            content: "\2212"; /* - 기호 */
+        }
+        .collapsible-content {
+            padding: 0 18px;
+            display: none; /* 기본적으로 숨김 */
+            overflow: visible; /* 내용이 넘치지 않도록 설정 */
+            background-color: #f9f9f9;
+            border-radius: 0 0 4px 4px;
+            margin-bottom: 10px;
+        }
+        .guidance-text {
+            padding: 10px;
+            background-color: #e8f4fd;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #0077cc;
+        }
+        .edit-context-panel {
+            display: none;
+            margin-top: 10px;
+        }
+        .multi-banned-word {
+            color: #ff0000;
+            font-weight: bold;
+            padding: 0 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>금지어 검색 프로그램</h1>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="openTab('checkTab')">텍스트 검사</div>
+            <div class="tab" onclick="openTab('settingsTab')">금지어 설정</div>
+        </div>
+        
+        <div id="checkTab" class="tab-content active">
+            <label for="inputText">검사할 텍스트:</label>
+            <textarea id="inputText" placeholder="여기에 검사할 텍스트를 입력하세요..."></textarea>
+            
+            <!-- 텍스트 검사 버튼 그룹 -->
+            <div class="button-group">
+                <button id="checkButton">검사하기</button>
+                <button id="clearTextButton" class="clear-button">전체 텍스트 지우기</button>
+            </div>
+            
+            <div id="result"></div>
+            
+            <!-- 모든 변경사항 적용/취소 버튼 - 위치 변경 -->
+            <div class="button-group" id="actionButtons" style="display: none;">
+                <button id="applyAllChangesButton" class="apply-button">모든 변경사항 적용</button>
+                <button id="cancelAllChangesButton" class="cancel-button">모든 변경사항 취소</button>
+            </div>
+            
+            <!-- 안내 문구 추가 -->
+            <div class="guidance-text" id="editGuidance" style="display: none;">
+                수정을 하려면 밑에 금칙어 수정 및 위치확인을 클릭하세요
+            </div>
+            
+            <!-- 금지어 위치 및 수정 섹션 -->
+            <button class="collapsible" id="bannedWordsLocationCollapsible">금칙어 수정 및 위치확인</button>
+            <div class="collapsible-content" id="bannedWordsLocationContent">
+                <div id="foundItems" class="found-items"></div>
+            </div>
+        </div>
+<div id="settingsTab" class="tab-content">
+            <label for="tagInput">금지어 추가:</label>
+            <div class="tags-input-container" id="tags-container">
+                <input type="text" class="tags-input" id="tagInput" placeholder="사과, 딸기, 바나나 등 금지어를 입력하고 엔터나 쉼표를 누르세요...">
+            </div>
+            
+            <!-- 금지어 설정 버튼 그룹 -->
+            <div class="button-group">
+                <button onclick="saveBannedWords()">저장</button>
+                <button id="clearBannedWordsButton" class="clear-button">전체 금지어 지우기</button>
+            </div>
+            
+            <div id="saveStatus"></div>
+            
+            <div id="currentBannedWords" style="margin-top: 15px;">
+                <strong>현재 금지어 목록:</strong>
+                <div id="bannedWordsList" style="margin-top: 10px;"></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+        // 금지어 목록 (초기값 빈 배열로 설정)
+        let bannedWords = [];
+        
+        // 원본 텍스트
+        let originalText = "";
+        
+        // 예정된 변경 사항 저장
+        let pendingChanges = {};
+        
+        // 페이지 로드 시 초기화
+        window.onload = function() {
+            // 태그 입력 시스템 설정
+            setupTagsInput();
+            
+            // 체크 버튼 이벤트 설정
+            document.getElementById('checkButton').addEventListener('click', checkText);
+            
+            // 전체 텍스트 지우기 버튼 이벤트 설정
+            document.getElementById('clearTextButton').addEventListener('click', clearAllText);
+            
+            // 전체 금지어 지우기 버튼 이벤트 설정
+            document.getElementById('clearBannedWordsButton').addEventListener('click', clearAllBannedWords);
+            
+            // 모든 변경사항 적용 버튼 이벤트 설정
+            document.getElementById('applyAllChangesButton').addEventListener('click', applyAllChanges);
+            
+            // 모든 변경사항 취소 버튼 이벤트 설정
+            document.getElementById('cancelAllChangesButton').addEventListener('click', cancelAllChanges);
+            
+            // 접기/펼치기 이벤트 설정
+            setupCollapsibles();
+            
+            // 초기 상태 업데이트
+            updateBannedWordsList();
+        };
+        
+        // 접기/펼치기 기능 설정
+        function setupCollapsibles() {
+            const collapsibles = document.getElementsByClassName("collapsible");
+            
+            for (let i = 0; i < collapsibles.length; i++) {
+                collapsibles[i].addEventListener("click", function() {
+                    this.classList.toggle("active");
+                    const content = this.nextElementSibling;
+                    
+                    if (content.style.display === 'none' || content.style.display === '') {
+                        content.style.display = 'block';
+                    } else {
+                        content.style.display = 'none';
+                    }
+                });
+            }
+        }
+        
+        // 전체 텍스트 지우기 함수
+        function clearAllText() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('foundItems').innerHTML = '';
+            document.getElementById('actionButtons').style.display = 'none';
+            document.getElementById('editGuidance').style.display = 'none';
+            document.getElementById('bannedWordsLocationContent').style.display = 'none';
+            document.getElementById('bannedWordsLocationCollapsible').classList.remove('active');
+            
+            originalText = '';
+            pendingChanges = {};
+        }
+        
+        // 전체 금지어 지우기 함수
+        function clearAllBannedWords() {
+            // 금지어 배열 초기화
+            bannedWords = [];
+            
+            // 태그 컨테이너의 모든 태그 제거
+            const tagsContainer = document.getElementById('tags-container');
+            const tags = tagsContainer.querySelectorAll('.tag-item');
+            
+            tags.forEach(tag => {
+                tag.remove();
+            });
+            
+            // 금지어 목록 업데이트
+            updateBannedWordsList();
+            
+            // 저장 상태 메시지 표시
+            const saveStatus = document.getElementById('saveStatus');
+            saveStatus.innerHTML = `<span style="color: green">모든 금지어가 삭제되었습니다.</span>`;
+            
+            setTimeout(() => {
+                saveStatus.textContent = '';
+            }, 3000);
+        }
+        
+        // 태그 입력 시스템 설정
+        function setupTagsInput() {
+            const tagsContainer = document.getElementById('tags-container');
+            const tagInput = document.getElementById('tagInput');
+            
+            // 엔터 키, 쉼표, 스페이스바 이벤트 처리
+            tagInput.addEventListener('keydown', function(e) {
+                // 엔터 또는 쉼표 입력 시 태그 생성
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    processTagInput();
+                } 
+                // 스페이스바 입력 시 태그 생성
+                else if (e.key === ' ') {
+                    const inputValue = tagInput.value.trim();
+                    if (inputValue) {
+                        e.preventDefault();
+                        addTag(inputValue);
+                        tagInput.value = '';
+                        updateBannedWordsList();
+                    }
+                } 
+                // 백스페이스로 태그 삭제
+                else if (e.key === 'Backspace' && tagInput.value === '') {
+                    const tags = tagsContainer.querySelectorAll('.tag-item');
+                    if (tags.length > 0) {
+                        const lastTag = tags[tags.length - 1];
+                        const tagValue = lastTag.getAttribute('data-value');
+                        lastTag.remove();
+                        removeFromBannedWords(tagValue);
+                        updateBannedWordsList();
+                    }
+                }
+            });
+            
+            // 붙여넣기 이벤트 처리
+            tagInput.addEventListener('paste', function(e) {
+                // 기본 붙여넣기 동작 방지
+                e.preventDefault();
+                
+                // 클립보드 데이터 가져오기
+                const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                
+                if (pastedText) {
+                    // 쉼표로 분리하여 여러 단어 처리
+                    const words = pastedText.split(',');
+                    words.forEach(word => {
+                        const trimmedWord = word.trim();
+                        if (trimmedWord) {
+                            addTag(trimmedWord);
+                        }
+                    });
+                    updateBannedWordsList();
+                }
+            });
+            
+            // 포커스 아웃 이벤트 처리
+            tagInput.addEventListener('blur', function() {
+                processTagInput();
+            });
+        }
+        
+        // 태그 입력 처리 함수
+        function processTagInput() {
+            const tagInput = document.getElementById('tagInput');
+            const inputValue = tagInput.value.trim();
+            
+            if (inputValue) {
+                // 쉼표로 분리된 여러 단어 처리
+                if (inputValue.includes(',')) {
+                    const words = inputValue.split(',');
+                    words.forEach(word => {
+                        const trimmedWord = word.trim();
+                        if (trimmedWord) {
+                            addTag(trimmedWord);
+                        }
+                    });
+                } else {
+                    // 단일 단어 처리
+                    addTag(inputValue);
+                }
+                
+                tagInput.value = '';
+                updateBannedWordsList();
+            }
+        }
+        
+        // 태그 추가 함수
+        function addTag(tagValue) {
+            const tagsContainer = document.getElementById('tags-container');
+            const tagInput = document.getElementById('tagInput');
+            
+            // 중복 태그 방지
+            if (bannedWords.includes(tagValue)) {
+                return;
+            }
+            
+            // 빈 태그 방지
+            if (!tagValue.trim()) {
+                return;
+            }
+            
+            // 태그 요소 생성
+            const tagItem = document.createElement('div');
+            tagItem.className = 'tag-item';
+            tagItem.setAttribute('data-value', tagValue);
+            tagItem.innerHTML = tagValue + '<span class="tag-close">×</span>';
+            
+            // 태그 삭제 이벤트
+            tagItem.querySelector('.tag-close').addEventListener('click', function() {
+                tagItem.remove();
+                removeFromBannedWords(tagValue);
+                updateBannedWordsList();
+            });
+            
+            // 태그 추가
+            tagsContainer.insertBefore(tagItem, tagInput);
+            bannedWords.push(tagValue);
+        }
+        
+        // 금지어 목록에서 단어 제거
+        function removeFromBannedWords(word) {
+            const index = bannedWords.indexOf(word);
+            if (index !== -1) {
+                bannedWords.splice(index, 1);
+            }
+        }
+        
+        // 금지어 목록 업데이트
+        function updateBannedWordsList() {
+            const bannedWordsList = document.getElementById('bannedWordsList');
+            bannedWordsList.innerHTML = '';
+            
+            if (bannedWords.length === 0) {
+                // 금지어가 없을 경우 메시지 표시
+                const emptyMessage = document.createElement('div');
+                emptyMessage.style.color = '#888';
+                emptyMessage.style.fontStyle = 'italic';
+                emptyMessage.textContent = '금지어 목록이 비어 있습니다. 금지어를 추가해주세요.';
+                bannedWordsList.appendChild(emptyMessage);
+                return;
+            }
+            
+            bannedWords.forEach(word => {
+                const wordSpan = document.createElement('span');
+                wordSpan.className = 'banned-word';
+                wordSpan.textContent = word;
+                bannedWordsList.appendChild(wordSpan);
+            });
+        }
+        
+        // 탭 전환 함수
+        function openTab(tabName) {
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            const tabs = document.getElementsByClassName('tab');
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+            
+            // 설정 탭이 열리면 입력란에 초점 맞추기
+            if (tabName === 'settingsTab') {
+                document.getElementById('tagInput').focus();
+            }
+        }
+
+        // 금지어 저장 함수
+        function saveBannedWords() {
+            // 태그에서 금지어 추출
+            const tags = document.querySelectorAll('.tag-item');
+            bannedWords = [];
+            
+            tags.forEach(tag => {
+                const word = tag.getAttribute('data-value');
+                if (word && !bannedWords.includes(word)) {
+                    bannedWords.push(word);
+                }
+            });
+            
+            const saveStatus = document.getElementById('saveStatus');
+            saveStatus.innerHTML = `<span style="color: green">금지어 목록이 저장되었습니다. (총 ${bannedWords.length}개)</span>`;
+            
+            // 금지어 목록 업데이트
+            updateBannedWordsList();
+            
+            setTimeout(() => {
+                saveStatus.textContent = '';
+            }, 3000);
+        }
+        
+        // 텍스트에서 특정 인덱스의 문자의 행 번호와 열 번호 찾기
+        function getLineAndColumn(text, index) {
+            if (index < 0 || index >= text.length) return { line: -1, column: -1 };
+            
+            const lines = text.substring(0, index + 1).split('\n');
+            const line = lines.length;
+            const column = lines[lines.length - 1].length;
+            
+            return { line, column };
+        }
+        
+        // 문자열 내에서 모든 패턴의 위치를 찾는 함수
+        function findAllOccurrences(str, pattern) {
+            const occurrences = [];
+            let index = -1;
+            
+            str = str.toLowerCase();
+            pattern = pattern.toLowerCase();
+            
+            while ((index = str.indexOf(pattern, index + 1)) !== -1) {
+                occurrences.push(index);
+            }
+            
+            return occurrences;
+        }
+        
+        // 텍스트에서 특정 인덱스 주변의 문맥 추출
+        function getContextWithHighlight(text, startIndex, endIndex, contextSize = 20) {
+            // 전체 문맥 추출 범위 계산
+            const contextStart = Math.max(0, startIndex - contextSize);
+            const contextEnd = Math.min(text.length, endIndex + contextSize);
+            
+            // 문맥 분리: 강조 표시 이전, 강조 표시 대상, 강조 표시 이후
+            const beforeHighlight = text.substring(contextStart, startIndex);
+            const highlightedText = text.substring(startIndex, endIndex);
+            const afterHighlight = text.substring(endIndex, contextEnd);
+            
+            return {
+                full: text.substring(contextStart, contextEnd),
+                before: beforeHighlight,
+                highlight: highlightedText,
+                after: afterHighlight,
+                start: contextStart,
+                end: contextEnd
+            };
+        }
+        
+        // 띄어쓰기를 제거하고 특정 인덱스에서 원본 텍스트의 인덱스 찾기
+        function mapNoSpaceToOriginal(originalText, noSpaceIndex) {
+            let originalIndex = 0;
+            let noSpacePos = 0;
+            
+            while (noSpacePos < noSpaceIndex && originalIndex < originalText.length) {
+                // 띄어쓰기가 아닌 경우에만 noSpacePos 증가
+                if (originalText[originalIndex] !== ' ' && 
+                    originalText[originalIndex] !== '\n' && 
+                    originalText[originalIndex] !== '\t' && 
+                    originalText[originalIndex] !== '\r') {
+                    noSpacePos++;
+                }
+                originalIndex++;
+            }
+            
+            return originalIndex;
+        }
+        
+        // 문맥 수정 패널 토글
+        function toggleEditContextPanel(index) {
+            const editPanel = document.getElementById(`edit-context-panel-${index}`);
+            
+            if (editPanel.style.display === 'none' || editPanel.style.display === '') {
+                editPanel.style.display = 'block';
+            } else {
+                editPanel.style.display = 'none';
+            }
+        }
+        
+        // 문맥 수정 제안 함수 (실제 적용은 하지 않고 변경 예정으로 표시)
+        function suggestContextEdit(index, contextElement) {
+            const foundItem = document.getElementById(`found-item-${index}`);
+            const contextStart = parseInt(foundItem.getAttribute('data-context-start'));
+            const contextEnd = parseInt(foundItem.getAttribute('data-context-end'));
+            
+            const newContext = contextElement.value;
+            
+            // 변경 예정으로 표시
+            foundItem.classList.add('pending-change');
+            
+            // 변경 예정 상태 추적
+            pendingChanges[index] = {
+                contextStart,
+                contextEnd,
+                originalContext: foundItem.getAttribute('data-original-context'),
+                newContext: newContext
+            };
+            
+            // 변경 알림 배지 추가
+            if (!foundItem.querySelector('.pending-badge')) {
+                const badge = document.createElement('span');
+                badge.className = 'pending-badge';
+                badge.textContent = '변경 예정';
+                foundItem.querySelector('.banned-word').parentNode.appendChild(badge);
+            }
+            
+            // 변경사항이 있을 때 버튼 표시
+            document.getElementById('actionButtons').style.display = 'flex';
+            
+            // 편집 패널 닫기
+            document.getElementById(`edit-context-panel-${index}`).style.display = 'none';
+        }
+        
+        // 변경 취소 함수
+        function cancelPendingChange(index) {
+            const foundItem = document.getElementById(`found-item-${index}`);
+            
+            // 변경 예정 클래스 제거
+            foundItem.classList.remove('pending-change');
+            
+            // 변경 예정 상태에서 제거
+            delete pendingChanges[index];
+            
+            // 배지 제거
+            const badge = foundItem.querySelector('.pending-badge');
+            if (badge) {
+                badge.remove();
+            }
+            
+            // 변경 예정이 없으면 버튼 숨기기
+            if (Object.keys(pendingChanges).length === 0) {
+                document.getElementById('actionButtons').style.display = 'none';
+            }
+        }
+        
+        // 인덱스 기준으로 정렬된 변경 예정 항목 반환
+        function getSortedPendingChanges() {
+            const changes = [];
+            
+            // 변경 항목에 인덱스 추가
+            for (const index in pendingChanges) {
+                changes.push({
+                    ...pendingChanges[index],
+                    index: parseInt(index)
+                });
+            }
+            
+            // 컨텍스트 시작 위치 기준으로 정렬 (뒤에서부터 적용하기 위해 역순)
+            return changes.sort((a, b) => b.contextStart - a.contextStart);
+        }
+        
+        // 모든 변경사항 적용
+        function applyAllChanges() {
+            // 변경 예정이 없으면 리턴
+            if (Object.keys(pendingChanges).length === 0) {
+                alert('적용할 변경사항이 없습니다.');
+                return;
+            }
+            
+            // 정렬된 변경 예정 항목 가져오기
+            const sortedChanges = getSortedPendingChanges();
+            
+            // 뒤에서부터 변경 적용 (인덱스 문제 방지)
+            let newText = originalText;
+            
+            sortedChanges.forEach(change => {
+                newText = newText.substring(0, change.contextStart) + 
+                        change.newContext + 
+                        newText.substring(change.contextEnd);
+            });
+            
+            // 변경된 텍스트를 입력 영역에 설정
+            document.getElementById('inputText').value = newText;
+            
+            // 변경 예정 초기화
+            pendingChanges = {};
+            
+            // 버튼 숨기기
+            document.getElementById('actionButtons').style.display = 'none';
+            
+            // 검사 다시 실행
+            checkText();
+            
+            // 알림
+            alert('모든 변경사항이 적용되었습니다.');
+        }
+        
+        // 모든 변경사항 취소
+        function cancelAllChanges() {
+            // 모든 항목의 변경 예정 클래스 및 배지 제거
+            document.querySelectorAll('.found-item.pending-change').forEach(item => {
+                item.classList.remove('pending-change');
+                const badge = item.querySelector('.pending-badge');
+                if (badge) badge.remove();
+            });
+            
+            // 변경 예정 초기화
+            pendingChanges = {};
+            
+            // 버튼 숨기기
+            document.getElementById('actionButtons').style.display = 'none';
+        }
+        
+        // 문맥 단위로 금지어 그룹화
+        function groupBannedWordsByContext(foundItems, contextSize = 3) {
+            // 금지어가 없으면 빈 배열 반환
+            if (foundItems.length === 0) return [];
+            
+            // 위치 기준으로 정렬
+            const sortedItems = [...foundItems].sort((a, b) => a.startIndex - b.startIndex);
+            
+            const groups = [];
+            let currentGroup = null;
+            
+            sortedItems.forEach(item => {
+                // 첫 번째 항목이거나 이전 그룹과 거리가 멀면 새 그룹 생성
+                if (!currentGroup || 
+                    (item.startIndex > currentGroup.endIndex + contextSize * 10)) {
+                    // 이전 그룹이 있으면 추가
+                    if (currentGroup) {
+                        groups.push(currentGroup);
+                    }
+                    
+                    // 새 그룹 생성
+                    currentGroup = {
+                        startIndex: item.context.start,
+                        endIndex: item.context.end,
+                        items: [item],
+                        context: item.context.full
+                    };
+                } else {
+                    // 기존 그룹에 항목 추가
+                    currentGroup.items.push(item);
+                    
+                    // 그룹 범위 확장
+                    currentGroup.startIndex = Math.min(currentGroup.startIndex, item.context.start);
+                    currentGroup.endIndex = Math.max(currentGroup.endIndex, item.context.end);
+                    
+                    // 문맥 업데이트 (전체 범위 포함)
+                    const fullContext = originalText.substring(currentGroup.startIndex, currentGroup.endIndex);
+                    currentGroup.context = fullContext;
+                }
+            });
+            
+            // 마지막 그룹 추가
+            if (currentGroup) {
+                groups.push(currentGroup);
+            }
+            
+            return groups;
+        }
+        
+        // 텍스트 검사 함수
+        function checkText() {
+            const inputText = document.getElementById('inputText').value;
+            const resultDiv = document.getElementById('result');
+            const foundItemsDiv = document.getElementById('foundItems');
+            const actionButtons = document.getElementById('actionButtons');
+            const editGuidance = document.getElementById('editGuidance');
+            const bannedWordsLocationContent = document.getElementById('bannedWordsLocationContent');
+            
+            // 결과 초기화
+            resultDiv.style.display = 'block';
+            foundItemsDiv.innerHTML = '';
+            actionButtons.style.display = 'none';
+            editGuidance.style.display = 'none';
+            bannedWordsLocationContent.style.display = 'none';
+            document.getElementById('bannedWordsLocationCollapsible').classList.remove('active');
+            
+            // 원본 텍스트 저장
+            originalText = inputText;
+            
+            // 변경 예정 초기화
+            pendingChanges = {};
+            
+            if (!inputText.trim()) {
+                resultDiv.textContent = '검사할 텍스트를 입력해주세요.';
+                resultDiv.className = 'warning';
+                return;
+            }
+            
+            // 금지어가 없는 경우
+            if (bannedWords.length === 0) {
+                resultDiv.textContent = '금지어 목록이 비어 있습니다. 금지어 설정 탭에서 금지어를 추가해주세요.';
+                resultDiv.className = 'warning';
+                return;
+            }
+            
+            // 검색 결과 저장
+            let foundItems = [];
+            
+            // 1. 직접적인 금지어 검사
+            bannedWords.forEach(word => {
+                // 대소문자 구분 없이 모든 발생 위치 찾기
+                const occurrences = findAllOccurrences(inputText, word);
+                
+                occurrences.forEach(index => {
+                    const context = getContextWithHighlight(
+                        inputText, 
+                        index, 
+                        index + word.length
+                    );
+                    
+                    foundItems.push({
+                        type: '직접 금지어',
+                        word: word,
+                        originalPattern: word,
+                        startIndex: index,
+                        endIndex: index + word.length,
+                        context: context,
+                        lineInfo: getLineAndColumn(inputText, index)
+                    });
+                });
+            });
+            
+            // 2. 띄어쓰기를 무시한 금지어 검사
+            const noSpaceText = inputText.replace(/\s+/g, '');
+            
+            bannedWords.forEach(word => {
+                // 이미 직접 포함된 금지어는 건너뛰기
+                const occurrences = findAllOccurrences(noSpaceText, word);
+                
+                occurrences.forEach(noSpaceIndex => {
+                    // 띄어쓰기 제거한 위치를 원본 텍스트의 위치로 변환
+                    const originalStartIndex = mapNoSpaceToOriginal(inputText, noSpaceIndex);
+                    
+                    // 원본 텍스트에서의 끝 위치 찾기 (띄어쓰기 포함)
+                    let originalEndIndex = originalStartIndex;
+                    let charCount = 0;
+                    
+                    while (charCount < word.length && originalEndIndex < inputText.length) {
+                        if (inputText[originalEndIndex] !== ' ' && 
+                            inputText[originalEndIndex] !== '\n' && 
+                            inputText[originalEndIndex] !== '\t' && 
+                            inputText[originalEndIndex] !== '\r') {
+                            charCount++;
+                        }
+                        originalEndIndex++;
+                    }
+                    
+                    // 이미 직접 금지어로 발견된 위치면 스킵
+                    const alreadyFound = foundItems.some(item => 
+                        item.type === '직접 금지어' && 
+                        item.startIndex <= originalStartIndex && 
+                        item.endIndex >= originalEndIndex
+                    );
+                    
+                    if (!alreadyFound) {
+                        const context = getContextWithHighlight(
+                            inputText, 
+                            originalStartIndex, 
+                            originalEndIndex
+                        );
+                        
+                        // 원본 패턴 추출
+                        const originalPattern = inputText.substring(originalStartIndex, originalEndIndex);
+                        
+                        foundItems.push({
+                            type: '띄어쓰기 무시 금지어',
+                            word: word,
+                            originalPattern: originalPattern,
+                            startIndex: originalStartIndex,
+                            endIndex: originalEndIndex,
+                            context: context,
+                            lineInfo: getLineAndColumn(inputText, originalStartIndex)
+                        });
+                    }
+                });
+            });
+            
+            // 3. 특별 패턴 검사 - 사용자가 정의한 금지어만 검색하도록 수정
+            bannedWords.forEach(pattern => {
+                if (pattern.length >= 2) { // 2글자 이상 패턴만 처리
+                    // 각 문자 사이에 어떤 문자나 구두점이든 올 수 있도록 정규식 패턴 확장
+                    const chars = pattern.split('');
+                    let regexPattern = '';
+                    
+                    for (let i = 0; i < chars.length; i++) {
+                        regexPattern += chars[i];
+                        if (i < chars.length - 1) {
+                            // 문자 사이에 공백, 구두점, 기타 문자 허용 (0개 이상)
+                            regexPattern += '(?:[^가-힣\\w]*\\s*[^가-힣\\w]*)?';
+                        }
+                    }
+                    
+                    // 문자 시작과 끝에 단어 경계가 아닌 조건을 추가
+                    const regex = new RegExp(regexPattern, 'gi');
+                    
+                    let match;
+                    while ((match = regex.exec(inputText)) !== null) {
+                        // 이미 직접 금지어나 띄어쓰기 무시 금지어로 발견된 위치면 스킵
+                        const alreadyFound = foundItems.some(item => 
+                            (item.startIndex <= match.index && item.endIndex >= match.index + match[0].length)
+                        );
+                        
+                        if (!alreadyFound) {
+                            const context = getContextWithHighlight(
+                                inputText, 
+                                match.index, 
+                                match.index + match[0].length
+                            );
+                            
+                            foundItems.push({
+                                type: '분리된 금지어 패턴',
+                                word: pattern,
+                                originalPattern: match[0],
+                                startIndex: match.index,
+                                endIndex: match.index + match[0].length,
+                                context: context,
+                                lineInfo: getLineAndColumn(inputText, match.index)
+                            });
+                        }
+                    }
+                    
+                    // 특수 경우: 완전히 분리된 경우도 감지 (사용자가 설정한 금지어만)
+                    if (pattern.length === 2) {
+                        // 첫 글자와 두 번째 글자가 서로 다른 단어나 완전히 분리되어 있는 경우 검사
+                        const firstChar = pattern.charAt(0);
+                        const secondChar = pattern.charAt(1);
+                        
+                        // 더 강력한 패턴 감지 - 모든 종류의 분리된 패턴 찾기
+                        // 문장 부호, 공백, 따옴표 등 사이에 있는 패턴 검출
+                        const specialRegex = new RegExp(`${firstChar}[^가-힣]*?[.?!,"\\'\\s]+[^가-힣]*?${secondChar}`, 'gi');
+                        
+                        let specialMatch;
+                        while ((specialMatch = specialRegex.exec(inputText)) !== null) {
+                            const context = getContextWithHighlight(
+                                inputText, 
+                                specialMatch.index, 
+                                specialMatch.index + specialMatch[0].length
+                            );
+                            
+                            foundItems.push({
+                                type: '완전히 분리된 금지어 패턴',
+                                word: pattern,
+                                originalPattern: specialMatch[0],
+                                startIndex: specialMatch.index,
+                                endIndex: specialMatch.index + specialMatch[0].length,
+                                context: context,
+                                lineInfo: getLineAndColumn(inputText, specialMatch.index)
+                            });
+                        }
+                    }
+                }
+            });
+            
+            // 4. 단어 내 금지어 패턴 검사 (사용자 정의 금지어만)
+            bannedWords.forEach(word => {
+                if (word.length >= 2) {
+                    // 단어 내에 포함된 패턴 찾기
+                    const regex = new RegExp(`\\S*${word}\\S*`, 'gi');
+                    
+                    let match;
+                    while ((match = regex.exec(inputText)) !== null) {
+                        // 정확히 같은 단어는 이미 직접 금지어로 검사됨
+                        if (match[0].toLowerCase() !== word.toLowerCase()) {
+                            // 이미 발견된 부분과 겹치는지 확인
+                            const alreadyFound = foundItems.some(item => 
+                                (item.startIndex <= match.index && item.endIndex >= match.index + match[0].length)
+                            );
+                            
+                            if (!alreadyFound) {
+                                // 금지어 위치 찾기
+                                const lowerMatch = match[0].toLowerCase();
+                                const lowerWord = word.toLowerCase();
+                                const wordIndex = lowerMatch.indexOf(lowerWord);
+                                
+                                // 위치 계산
+                                const startHighlight = match.index + wordIndex;
+                                const endHighlight = startHighlight + word.length;
+                                
+                                const context = getContextWithHighlight(
+                                    inputText, 
+                                    startHighlight, 
+                                    endHighlight
+                                );
+                                
+                                foundItems.push({
+                                    type: '단어 내 금지어 패턴',
+                                    word: word,
+                                    originalPattern: match[0],
+                                    startIndex: startHighlight,
+                                    endIndex: endHighlight,
+                                    context: context,
+                                    lineInfo: getLineAndColumn(inputText, startHighlight)
+                                });
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 결과 표시
+            if (foundItems.length > 0) {
+                // 발견 위치에 따라 정렬
+                foundItems.sort((a, b) => a.startIndex - b.startIndex);
+                
+                // 중복 제거 (같은 위치에 여러 패턴이 감지된 경우)
+                const uniqueItems = [];
+                for (let i = 0; i < foundItems.length; i++) {
+                    let isDuplicate = false;
+                    for (let j = 0; j < uniqueItems.length; j++) {
+                        // 위치가 완전히 포함되는 경우 중복으로 간주
+                        if (foundItems[i].startIndex >= uniqueItems[j].startIndex && 
+                            foundItems[i].endIndex <= uniqueItems[j].endIndex) {
+                            isDuplicate = true;
+                            break;
+                        }
+                    }
+                    if (!isDuplicate) {
+                        uniqueItems.push(foundItems[i]);
+                    }
+                }
+                
+                // 금지어를 문맥 단위로 그룹화
+                const contextGroups = groupBannedWordsByContext(uniqueItems);
+                
+                resultDiv.textContent = `금지어가 발견되었습니다! (총 ${uniqueItems.length}개 발견)`;
+                resultDiv.className = 'danger';
+                
+                // 안내 문구 표시
+                editGuidance.style.display = 'block';
+                
+                // 각 문맥 그룹에 대해 항목 생성
+                contextGroups.forEach((group, groupIndex) => {
+                    // 이 그룹에 포함된 모든 금지어
+                    const containedWords = group.items.map(item => item.word);
+                    
+                    // 중복 제거한 금지어 목록
+                    const uniqueWords = [...new Set(containedWords)];
+                    
+                    // 첫 번째 금지어 항목 가져오기 (위치 정보용)
+                    const firstItem = group.items[0];
+                    
+                    // 문맥 내 모든 금지어를 하이라이트하는 HTML 생성
+                    let highlightedContext = group.context;
+                    let offset = 0; // 태그 추가로 인한 오프셋 조정
+                    
+                    // 정렬된 금지어 항목 (시작 위치 기준)
+                    const sortedItems = [...group.items].sort((a, b) => a.startIndex - b.startIndex);
+                    
+                    // 각 금지어 강조
+                    sortedItems.forEach(item => {
+                        // 그룹 내 상대적 위치 계산
+                        const relativeStart = item.startIndex - group.startIndex + offset;
+                        const relativeEnd = relativeStart + (item.endIndex - item.startIndex);
+                        
+                        const before = highlightedContext.substring(0, relativeStart);
+                        const word = highlightedContext.substring(relativeStart, relativeEnd);
+                        const after = highlightedContext.substring(relativeEnd);
+                        
+                        highlightedContext = before + 
+                                           `<span class="found-highlight">${word}</span>` + 
+                                           after;
+                        
+                        // 태그로 인한 오프셋 조정
+                        offset += '<span class="found-highlight">'.length + '</span>'.length;
+                    });
+                    
+                    // 항목 생성
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'found-item';
+                    itemDiv.id = `found-item-${groupIndex}`;
+                    itemDiv.setAttribute('data-context-start', group.startIndex);
+                    itemDiv.setAttribute('data-context-end', group.endIndex);
+                    itemDiv.setAttribute('data-original-context', group.context);
+                    
+                    // HTML 내용 생성
+                    let itemContent = `
+                        <strong>금지어 #${groupIndex + 1}:</strong> <span class="banned-word">${uniqueWords.join(', ')}</span><br>
+                        <strong>유형:</strong> 직접 금지어<br>
+                        <strong>위치:</strong> ${firstItem.lineInfo.line}행, ${firstItem.lineInfo.column}열<br>
+                        <strong>문맥:</strong> <div class="context-preview">${highlightedContext}</div><br>
+                    `;
+                    
+                    // 문장 수정하기 버튼 추가
+                    itemContent += `
+                        <button class="change-button" onclick="toggleEditContextPanel(${groupIndex})">문장 수정하기</button>
+                        
+                        <!-- 문장 수정 패널 -->
+                        <div class="edit-context-panel" id="edit-context-panel-${groupIndex}" style="display: none;">
+                            <textarea class="context-edit">${group.context}</textarea>
+                            <button class="context-apply" onclick="suggestContextEdit(${groupIndex}, this.previousElementSibling)">이 문맥으로 변경 제안</button>
+                        </div>
+                    `;
+                    
+                    itemDiv.innerHTML = itemContent;
+                    foundItemsDiv.appendChild(itemDiv);
+                });
+                
+                // "금칙어 수정 및 위치확인" 섹션 표시
+                document.getElementById('bannedWordsLocationCollapsible').style.display = 'block';
+                
+            } else {
+                resultDiv.textContent = '금지어가 발견되지 않았습니다.';
+                resultDiv.className = 'safe';
+            }
+        }
+   </script>
+</body>
+</html>
